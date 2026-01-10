@@ -9,6 +9,7 @@ class QuestionRewardApp
     private int coins=0;
     private int streak=0;
     private boolean didtask=false;
+    private boolean didpenalty=false;
    
     public static void menu() 
     {
@@ -160,13 +161,15 @@ class QuestionRewardApp
             return LocalDate.parse(sb.toString().trim());
             
         }
-        catch(Exception e){return LocalDate.now();}
+        catch(Exception e){return null;}
+
     }
     
-    public long diff_days_streak_active()
+    public Long diff_days_streak_active()
     {
         LocalDate last_date = loadLastStreakDate();
         LocalDate now_date = LocalDate.now();
+        if(last_date==null){return null;}
         
         return ChronoUnit.DAYS.between(last_date, now_date);
     }
@@ -320,49 +323,63 @@ class QuestionRewardApp
 
     QuestionRewardApp app = new QuestionRewardApp();
 
+    
     app.loadCoins();
     app.loadStreak();
     String oldRank = app.loadLastRank();
 
-    long gapActivity = app.diif_days_active();
-    long gapStreak = app.diff_days_streak_active();
+    
+    long gapActivity = app.diif_days_active();         // How many days user skipped activity
+    Long gapStreak = app.diff_days_streak_active();    // How many days since last streak, can be null
 
-    if(gapStreak >= 2){
+    
+    if (gapActivity >= 1) {
+        app.applyPenalty(gapActivity);
+        saveLastActivity();
+    }
+
+   
+    if (gapStreak != null && gapStreak >= 2) {
         app.streak = 0;
         app.saveStreak();
     }
-    
-    app.applyPenalty(gapActivity);
-    
+
+   
     app.details();
+
+    
     app.startApp();
 
-    if(app.didtask){
-
-        if(gapStreak == 1){
+   
+    if (app.didtask) {
+        if (gapStreak == null || gapStreak > 1) {
+            
+            app.streak = 1;
+        } else if (gapStreak == 1) {
+            
             app.streak++;
-            app.saveStreak();
-            app.saveLastStreakDate();
         }
-        app.saveLastActivity();
 
+       
+        app.saveStreak();
+        app.saveLastStreakDate();
+        app.saveLastActivity();
     }
-    
+
+   
     String newRank = app.rank();
 
-    if(!newRank.equals(oldRank)){
-        if(leval_Of_Rank(newRank) < leval_Of_Rank(oldRank))
+  
+    if (!newRank.equals(oldRank)) {
+        if (leval_Of_Rank(newRank) < leval_Of_Rank(oldRank))
             System.out.println("You dropped from " + oldRank + " to " + newRank);
         else
             System.out.println("Rank Up! " + oldRank + " → " + newRank);
     }
 
     app.save_Rank();
-    app.saveStreak();
     app.saveCoins();
-    app.saveLastActivity();
+    app.saveStreak();
 }
+
 }
-
-
-
