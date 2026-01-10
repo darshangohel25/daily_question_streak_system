@@ -268,7 +268,7 @@ class QuestionRewardApp
 					    fwd.write(question + "\n");
 					    coins++;
 					    saveCoins();
-					    didsomething = true;
+					    didtask = true;
 					}
 					
 					fwd.close();
