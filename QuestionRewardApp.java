@@ -4,14 +4,15 @@ import java.util.Scanner;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-public class QuestionRewardApp
+class QuestionRewardApp
 {
-    int coins=0;
-    int streak=0;
-    boolean didsomething=false;
+    private int coins=0;
+    private int streak=0;
+    private boolean didtask=false;
    
-    public static void menu() {
-		
+    public static void menu() 
+    {
+        System.out.println("==========MENU OPTION========");
 		System.out.println("press 1 for enter the question: ");
 		System.out.println("press 2 for see the question: ");
 		System.out.println("press 3 for see your coins: ");
@@ -20,8 +21,7 @@ public class QuestionRewardApp
 	    System.out.println("press 6 for exit: ");
 	}
 
-
-     private void saveCoins()
+    public void saveCoins()
     {
         try {
 			 FileWriter fwsc = new FileWriter("coins.txt");
@@ -34,7 +34,7 @@ public class QuestionRewardApp
 		}
     }
     
-    private void loadCoins()
+    public void loadCoins()
     {
         int ch;
         
@@ -59,7 +59,7 @@ public class QuestionRewardApp
 		}
     }
     
-    private void saveLastActivity()
+    public void saveLastActivity()
     {
         try{
         
@@ -69,7 +69,7 @@ public class QuestionRewardApp
     }catch(Exception e){}
     }
     
-    private LocalDate loadLastActivity() {
+    public LocalDate loadLastActivity() {
     try {
         FileReader fr = new FileReader("last_activity.txt");
         StringBuilder sb = new StringBuilder();
@@ -82,7 +82,7 @@ public class QuestionRewardApp
     }
 }
 
-   private long diif_days_active()
+   public long diif_days_active()
    {
         LocalDate last_date = loadLastActivity();
         LocalDate now_date = LocalDate.now();
@@ -90,9 +90,8 @@ public class QuestionRewardApp
         return ChronoUnit.DAYS.between(last_date, now_date);
    }
     
-   private void applyPenalty()
+   public void applyPenalty(long diffDays)
     {
-        long diffDays = diif_days_active();
         System.out.println("you come within a "+diffDays+" days");
         
         if(diffDays>0)
@@ -107,7 +106,7 @@ public class QuestionRewardApp
         }
     }
     
-    private void saveStreak()
+    public void saveStreak()
     {
         try{
             FileWriter fwss = new FileWriter("save_streak.txt");
@@ -117,7 +116,7 @@ public class QuestionRewardApp
         catch(Exception e){}
     }
     
-    private void loadStreak()
+    public void loadStreak()
     {
         int ch;
         StringBuilder sb = new StringBuilder();
@@ -138,7 +137,7 @@ public class QuestionRewardApp
 		}
     }
     
-    private void saveLastStreakDate()
+    public void saveLastStreakDate()
     {
         try{
             FileWriter fwls = new FileWriter("save_streak_date");
@@ -147,7 +146,7 @@ public class QuestionRewardApp
         }catch(Exception e){}
     }
     
-    private LocalDate loadLastStreakDate()
+    public LocalDate loadLastStreakDate()
     {
         int ch;
         StringBuilder sb = new StringBuilder();
@@ -164,7 +163,7 @@ public class QuestionRewardApp
         catch(Exception e){return LocalDate.now();}
     }
     
-    private long penaltyStreak()
+    public long diff_days_streak_active()
     {
         LocalDate last_date = loadLastStreakDate();
         LocalDate now_date = LocalDate.now();
@@ -172,7 +171,7 @@ public class QuestionRewardApp
         return ChronoUnit.DAYS.between(last_date, now_date);
     }
     
-    private  String rank()
+    public String rank()
     {
         if(coins>=150 && streak>=20){return "UNBREAKABLE";}
         else if(coins>=90 && streak>=12){return "DISCIPLINED";}
@@ -183,7 +182,7 @@ public class QuestionRewardApp
         
     }
     
-    private void save_Rank()
+    public void save_Rank()
     {
         
         try{
@@ -193,7 +192,7 @@ public class QuestionRewardApp
         }catch(Exception e){}
     }
     
-    private String loadLastRank()
+    public String loadLastRank()
     {
         int ch;
         StringBuilder sb = new StringBuilder();
@@ -212,7 +211,7 @@ public class QuestionRewardApp
 		
     }
     
-    private static  int leval_Of_Rank(String rank)
+    public static  int leval_Of_Rank(String rank)
     {
         switch(rank)
         {
@@ -226,15 +225,16 @@ public class QuestionRewardApp
         return 0;
     }
     
-    private void details()
+    public void details()
     {
+        System.out.println("-------------------------------------------------------------");
         System.out.println("coins: "+""+coins+" "+"streak: "+""+streak+" "+"rank: "+rank());
+        System.out.println("-------------------------------------------------------------");
     }
     
-   	public void  doSomething()
+   	public void startApp()
 	{
-
-		Scanner sc = new Scanner(System.in);
+	    Scanner sc = new Scanner(System.in);
 		
 		int choise;
 		int ch;
@@ -242,16 +242,16 @@ public class QuestionRewardApp
 	    do
 		{
 		    menu();
-    System.out.print("Enter your choice: ");
+            System.out.print("Enter your choice: ");
 
-    try {
-        choise = sc.nextInt();
-    } catch (Exception e) {
-        System.out.println("Invalid input! Please enter only numbers.");
-        sc.nextLine();   
-        choise = -1;
-        continue;
-    }
+            try {
+                choise = sc.nextInt();
+            } catch (Exception e) {
+                System.out.println("Invalid input! Please enter only numbers.");
+                sc.nextLine();   
+                choise = -1;
+                continue;
+            }
 
 			
 		switch(choise)
@@ -324,45 +324,30 @@ public class QuestionRewardApp
     app.loadStreak();
     String oldRank = app.loadLastRank();
 
-    LocalDate today = LocalDate.now();
+    long gapActivity = app.diif_days_active();
+    long gapStreak = app.diff_days_streak_active();
 
-    LocalDate lastActivity = app.loadLastActivity();      // coins penalty base
-    LocalDate lastStreakDate = app.loadLastStreakDate();  // streak reward base
-
-    long gapActivity = ChronoUnit.DAYS.between(lastActivity, today);
-
-   
-    if(gapActivity >= 2){
+    if(gapStreak >= 2){
         app.streak = 0;
+        app.saveStreak();
     }
     
-    if(gapActivity==1)
-    {
-        app.streak++;
-    }
-
-    if(gapActivity >= 1){
-        app.applyPenalty();
-    }
-
-  
+    app.applyPenalty(gapActivity);
+    
     app.details();
-    app.doSomething();
+    app.startApp();
 
- 
-    if(app.didsomething){
+    if(app.didtask){
 
-        long gapStreak = ChronoUnit.DAYS.between(lastStreakDate, today);
-
-        if(gapStreak >= 1){
+        if(gapStreak == 1){
             app.streak++;
+            app.saveStreak();
             app.saveLastStreakDate();
         }
-
         app.saveLastActivity();
-    }
 
-   
+    }
+    
     String newRank = app.rank();
 
     if(!newRank.equals(oldRank)){
@@ -375,9 +360,9 @@ public class QuestionRewardApp
     app.save_Rank();
     app.saveStreak();
     app.saveCoins();
+    app.saveLastActivity();
 }
 }
-
 
 
 
