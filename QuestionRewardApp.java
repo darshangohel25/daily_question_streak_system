@@ -9,8 +9,7 @@ class QuestionRewardApp
     private int coins=0;
     private int streak=0;
     private boolean didtask=false;
-    private boolean didpenalty=false;
-   
+    
     public static void menu() 
     {
         System.out.println("==========MENU OPTION========");
@@ -31,7 +30,7 @@ class QuestionRewardApp
 		}
 		catch(Exception e)
 		{
-			System.out.println("sonething went wrong..");
+			System.out.println("something went wrong..");
 		}
     }
     
@@ -67,7 +66,10 @@ class QuestionRewardApp
         FileWriter fwsla = new FileWriter("last_activity.txt");
         fwsla.write(String.valueOf(LocalDate.now().toString()));
         fwsla.close();
-    }catch(Exception e){}
+    }
+        catch(Exception e){
+            System.out.println("something went wrong due to"+e);
+        }
     }
     
     public LocalDate loadLastActivity() {
@@ -78,15 +80,20 @@ class QuestionRewardApp
         while((ch = fr.read()) != -1) sb.append((char)ch);
         fr.close();
         return LocalDate.parse(sb.toString().trim());
-    } catch(Exception e) {
-        return LocalDate.now();
+    } 
+    catch(Exception e) {
+        return null;
     }
 }
 
-   public long diif_days_active()
+   public Long diff_days_active()
    {
         LocalDate last_date = loadLastActivity();
         LocalDate now_date = LocalDate.now();
+        
+        if(last_date==null){
+            return null;
+        }
         
         return ChronoUnit.DAYS.between(last_date, now_date);
    }
@@ -114,7 +121,10 @@ class QuestionRewardApp
             fwss.write(String.valueOf(streak));
             fwss.close();
         }
-        catch(Exception e){}
+        catch(Exception e)
+        {
+            System.out.println("something went wrong due to"+e);
+        }
     }
     
     public void loadStreak()
@@ -141,10 +151,13 @@ class QuestionRewardApp
     public void saveLastStreakDate()
     {
         try{
-            FileWriter fwls = new FileWriter("save_streak_date");
+            FileWriter fwls = new FileWriter("save_streak_date.txt");
             fwls.write(LocalDate.now().toString());
             fwls.close();
-        }catch(Exception e){}
+        }
+        catch(Exception e){
+            System.out.println("something went wrong due to"+e);
+        }
     }
     
     public LocalDate loadLastStreakDate()
@@ -152,16 +165,19 @@ class QuestionRewardApp
         int ch;
         StringBuilder sb = new StringBuilder();
         try{
-            FileReader frlls = new FileReader("save_streak_date");
+            FileReader frlls = new FileReader("save_streak_date.txt");
             while((ch=frlls.read())!=-1)
             {
                 sb.append((char)ch);
             }
             frlls.close();
-            return LocalDate.parse(sb.toString().trim());
             
+            return LocalDate.parse(sb.toString().trim());
         }
-        catch(Exception e){return null;}
+        catch(Exception e)
+        {
+            return null;
+        }
 
     }
     
@@ -187,9 +203,8 @@ class QuestionRewardApp
     
     public void save_Rank()
     {
-        
         try{
-            FileWriter fwsr = new FileWriter("last_Rank");
+            FileWriter fwsr = new FileWriter("last_Rank.txt");
             fwsr.write(rank());
             fwsr.close();
         }catch(Exception e){}
@@ -200,7 +215,7 @@ class QuestionRewardApp
         int ch;
         StringBuilder sb = new StringBuilder();
         try{
-            FileReader frlr = new FileReader("last_Rank");
+            FileReader frlr = new FileReader("last_Rank.txt");
             while((ch=frlr.read())!=-1)
             {
                 sb.append((char)ch);
@@ -214,7 +229,7 @@ class QuestionRewardApp
 		
     }
     
-    public static  int leval_Of_Rank(String rank)
+    public int leval_Of_Rank(String rank)
     {
         switch(rank)
         {
@@ -265,8 +280,8 @@ class QuestionRewardApp
 					FileWriter fwd = new FileWriter("doubts.txt",true);
 					System.out.println("enter your question");
 					sc.nextLine();
-					String question = sc.nextLine();
-					if(question.trim().isEmpty()){System.out.println("do not enter space");}
+					String question = sc.nextLine().trim();
+					if(question.isEmpty()){System.out.println("do not enter space");}
 					else{
 					    fwd.write(question + "\n");
 					    coins++;
@@ -313,73 +328,72 @@ class QuestionRewardApp
 			    break;
 			    
 			default:
-				System.out.println("you enter wrong choise please try again");
+				System.out.println("you enter wrong choice please try again");
 
 }
 		} while(choise!=6);
 		
 	}
-	public static void main(String[] args) {
+	public static void main(String[] args)
+	{
 
-    QuestionRewardApp app = new QuestionRewardApp();
+        QuestionRewardApp app = new QuestionRewardApp();
 
-    
-    app.loadCoins();
-    app.loadStreak();
-    String oldRank = app.loadLastRank();
+        app.loadCoins();
+        app.loadStreak();
+        
+        String oldRank = app.loadLastRank();
 
-    
-    long gapActivity = app.diif_days_active();         // How many days user skipped activity
-    Long gapStreak = app.diff_days_streak_active();    // How many days since last streak, can be null
-
-    
-    if (gapActivity >= 1) {
-        app.applyPenalty(gapActivity);
-        saveLastActivity();
-    }
-
-   
-    if (gapStreak != null && gapStreak >= 2) {
-        app.streak = 0;
-        app.saveStreak();
-    }
-
-   
-    app.details();
+        Long gapActivity = app.diff_days_active();        
+        Long gapStreak = app.diff_days_streak_active();    
 
     
-    app.startApp();
-
-   
-    if (app.didtask) {
-        if (gapStreak == null || gapStreak > 1) {
-            
-            app.streak = 1;
-        } else if (gapStreak == 1) {
-            
-            app.streak++;
+        if (gapActivity!=null && gapActivity >= 1)
+        {
+            app.applyPenalty(gapActivity);
+            app.saveLastActivity();
         }
 
-       
-        app.saveStreak();
-        app.saveLastStreakDate();
-        app.saveLastActivity();
-    }
+        app.details();
+
+        app.startApp();
 
    
-    String newRank = app.rank();
+        if (app.didtask) 
+        {
+            if (gapStreak == null || gapStreak > 1) 
+            {
+                app.streak = 1;
+            } 
+            
+            else if (gapStreak == 1) 
+            {
+                app.streak++;
+            }
 
-  
-    if (!newRank.equals(oldRank)) {
-        if (leval_Of_Rank(newRank) < leval_Of_Rank(oldRank))
-            System.out.println("You dropped from " + oldRank + " to " + newRank);
-        else
-            System.out.println("Rank Up! " + oldRank + " → " + newRank);
+            app.saveStreak();
+            app.saveLastStreakDate();
+            app.saveLastActivity();
+        }
+
+        String newRank = app.rank();
+
+        if (!newRank.equals(oldRank))
+        {
+            if (app.leval_Of_Rank(newRank) < app.leval_Of_Rank(oldRank))
+            {
+                System.out.println("You dropped from " + oldRank + " to " + newRank);
+            }
+            
+            else
+            {
+                System.out.println("Rank Up! " + oldRank + " → " + newRank);
+            }
+        }
+
+        app.save_Rank();
+        app.saveCoins();
+        app.saveStreak();
     }
-
-    app.save_Rank();
-    app.saveCoins();
-    app.saveStreak();
-}
 
 }
