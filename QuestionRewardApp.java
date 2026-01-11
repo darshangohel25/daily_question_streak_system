@@ -13,12 +13,12 @@ class QuestionRewardApp
     public static void menu() 
     {
         System.out.println("==========MENU OPTION========");
-		System.out.println("press 1 for enter the question: ");
-		System.out.println("press 2 for see the question: ");
-		System.out.println("press 3 for see your coins: ");
-		System.out.println("press 4 for see your streak: ");
-		System.out.println("press 5 for see your rank: ");
-	    System.out.println("press 6 for exit: ");
+		System.out.println("press 1 to enter a question: ");
+		System.out.println("press 2 to view your questions: ");
+		System.out.println("press 3 to see your coins: ");
+		System.out.println("press 4 to see your streak: ");
+		System.out.println("press 5 to see your rank: ");
+	    System.out.println("press 6 to exit: ");
 	}
 
     public void saveCoins()
@@ -30,7 +30,7 @@ class QuestionRewardApp
 		}
 		catch(Exception e)
 		{
-			System.out.println("something went wrong..");
+			System.out.println("Error: " + e.getMessage());
 		}
     }
     
@@ -68,7 +68,7 @@ class QuestionRewardApp
         fwsla.close();
     }
         catch(Exception e){
-            System.out.println("something went wrong due to"+e);
+            System.out.println("Error: " + e.getMessage());
         }
     }
     
@@ -100,7 +100,7 @@ class QuestionRewardApp
     
    public void applyPenalty(long diffDays)
     {
-        System.out.println("you come within a "+diffDays+" days");
+        System.out.println("You were inactive for " + diffDays + " days");
         
         if(diffDays>0)
         {
@@ -109,7 +109,7 @@ class QuestionRewardApp
             {
                 coins=0;
             }
-            System.out.println("remaning a "+coins+" coins");
+            System.out.println("Remaining "+coins+" coins");
             saveCoins();
         }
     }
@@ -123,7 +123,7 @@ class QuestionRewardApp
         }
         catch(Exception e)
         {
-            System.out.println("something went wrong due to"+e);
+            System.out.println("Error: " + e.getMessage());
         }
     }
     
@@ -156,7 +156,7 @@ class QuestionRewardApp
             fwls.close();
         }
         catch(Exception e){
-            System.out.println("something went wrong due to"+e);
+            System.out.println("Error: " + e.getMessage());
         }
     }
     
@@ -207,7 +207,10 @@ class QuestionRewardApp
             FileWriter fwsr = new FileWriter("last_Rank.txt");
             fwsr.write(rank());
             fwsr.close();
-        }catch(Exception e){}
+        }catch(Exception e)
+        {
+            System.out.println("Error saving rank: " + e.getMessage());
+        }
     }
     
     public String loadLastRank()
@@ -229,7 +232,7 @@ class QuestionRewardApp
 		
     }
     
-    public int leval_Of_Rank(String rank)
+    public int level_Of_Rank(String rank)
     {
         switch(rank)
         {
@@ -281,7 +284,7 @@ class QuestionRewardApp
 					System.out.println("enter your question");
 					sc.nextLine();
 					String question = sc.nextLine().trim();
-					if(question.isEmpty()){System.out.println("do not enter space");}
+					if(question.isEmpty()){System.out.println("Question cannot be empty!");}
 					else{
 					    fwd.write(question + "\n");
 					    coins++;
@@ -293,7 +296,7 @@ class QuestionRewardApp
 				}
 				catch(Exception e)
 				{
-					System.out.println("something went wrong! due to"+e);
+					System.out.println("Error: " + e.getMessage());
 				}
 				break;
 
@@ -307,12 +310,12 @@ class QuestionRewardApp
 					fr.close();
 				} catch(Exception e)
 				{
-					System.out.println("something went wrong! due to"+e);
+					System.out.println("Error: " + e.getMessage());
 				}
 				break;
 
 			case 3:
-				System.out.println("totle coins is:"+coins);
+				System.out.println("total coins:"+coins);
 				break;
 				
 			case 4:
@@ -328,7 +331,7 @@ class QuestionRewardApp
 			    break;
 			    
 			default:
-				System.out.println("you enter wrong choice please try again");
+				System.out.println("Invalid choice, please try again");
 
 }
 		} while(choise!=6);
@@ -361,7 +364,7 @@ class QuestionRewardApp
    
         if (app.didtask) 
         {
-            if (gapStreak == null || gapStreak > 1) 
+            if (gapStreak == null && app.streak==0) 
             {
                 app.streak = 1;
             } 
@@ -370,6 +373,13 @@ class QuestionRewardApp
             {
                 app.streak++;
             }
+            
+            else if(gapStreak>1)
+            {
+                app.streak=0;
+            }
+            
+            else{}
 
             app.saveStreak();
             app.saveLastStreakDate();
@@ -380,7 +390,7 @@ class QuestionRewardApp
 
         if (!newRank.equals(oldRank))
         {
-            if (app.leval_Of_Rank(newRank) < app.leval_Of_Rank(oldRank))
+            if (app.level_Of_Rank(newRank) < app.level_Of_Rank(oldRank))
             {
                 System.out.println("You dropped from " + oldRank + " to " + newRank);
             }
