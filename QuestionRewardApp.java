@@ -12,6 +12,8 @@ class QuestionRewardApp
     private int coins=0;
     private int streak=0;
     private boolean didtask=false;
+    private int limit=0;
+    private int actual_limit=0;
     
     public int getCoins() 
     { 
@@ -43,40 +45,38 @@ class QuestionRewardApp
         this.didtask = didtask; 
     }
     
-    enum Rank 
-        { 
-            BEGINNER(1), LEARNER(2), CONSISTENT(3), FOCUSED(4), DISCIPLINED(5), UNBREAKABLE(6); 
-                private int level; 
-                Rank(int level)
-                { 
-                    this.level = level; 
-                }
-                
-                public int getLevel()
-                { 
-                    return level; 
-                } 
-        }
-
+    public int getLimit()
+    {
+        return limit;
+    }
+    
+    public void setLimit(int limit)
+    {
+        this.limit=limit;
+    }
     
     public static void menu() 
     {
-        System.out.println("==========MENU OPTION========");
-		System.out.println("press 1 to enter a question: ");
-		System.out.println("press 2 to view your questions: ");
-		System.out.println("press 3 to see your coins: ");
-		System.out.println("press 4 to see your streak: ");
-		System.out.println("press 5 to see your rank: ");
-	    System.out.println("press 6 to exit: ");
+        System.out.println("\n========== MENU ==========");
+        System.out.println("1. Enter a question");
+        System.out.println("2. View your questions");
+        System.out.println("3. See your coins");
+        System.out.println("4. See your streak");
+        System.out.println("5. See your rank");
+        System.out.println("6. Exit");
+        System.out.println("============================");
+        System.out.print("Choose an option: ");
+       
+
 	}
 
     public void saveCoins()
     {
-        try {
-			 BufferedWriter bw = new BufferedWriter(new FileWriter("coins.txt")); 
-			 bw.write(String.valueOf(coins)); 
-			 bw.close();
-		}
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter("coins.txt"))) 
+        {
+			bw.write(String.valueOf(coins)); 
+        }
+        
 		catch(Exception e)
 		{
 			System.out.println("Error: " + e.getMessage());
@@ -89,19 +89,19 @@ class QuestionRewardApp
         
         StringBuilder sb = new StringBuilder();
         
-        try 
+        try(BufferedReader br  = new BufferedReader(new FileReader("coins.txt"))) 
         {
-			BufferedReader br  = new BufferedReader(new FileReader("coins.txt"));
-
 			while((ch=br.readLine())!= null)
 			{
 			   sb.append(ch);
 			}
 			
-			br.close();
-			if (sb.length() > 0)
+		    if (sb.length() > 0)
+		    {
 			    coins = Integer.parseInt(sb.toString().trim());
-		} 
+		    }
+		}
+		
 		catch(Exception e) 
 		{
 		   coins=0;
@@ -115,8 +115,8 @@ class QuestionRewardApp
         { 
             coins = 0;
             saveCoins();
-            
         }
+        
         else
         {
             loadCoins();
@@ -125,27 +125,35 @@ class QuestionRewardApp
     
     public void saveLastActivity()
     {
-        try{
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter("last_activity.txt")))
+        {
+            bw.write(String.valueOf(LocalDate.now().toString()));
+        }
         
-        BufferedWriter bw = new BufferedWriter(new FileWriter("last_activity.txt")); 
-        bw.write(String.valueOf(LocalDate.now().toString()));
-        bw.close();
-    }
-        catch(Exception e){
+        catch(Exception e)
+        {
             System.out.println("Error: " + e.getMessage());
         }
     }
     
-    public LocalDate loadLastActivity() {
-    try {
-        BufferedReader br  = new BufferedReader(new FileReader("last_activity.txt"));
-        StringBuilder sb = new StringBuilder();
+    public LocalDate loadLastActivity() 
+    {
+        try(BufferedReader br  = new BufferedReader(new FileReader("last_activity.txt"))) 
+    {
         String ch;
-        while((ch=br.readLine())!= null) sb.append(ch);
-        br.close();
+        
+        StringBuilder sb = new StringBuilder();
+        
+        while((ch=br.readLine())!= null) 
+        {
+            sb.append(ch);
+        }
+        
         return LocalDate.parse(sb.toString().trim());
-    } 
-    catch(Exception e) {
+    }
+    
+    catch(Exception e)
+    {
         return null;
     }
 }
@@ -180,11 +188,11 @@ class QuestionRewardApp
     
     public void saveStreak()
     {
-        try{
-            BufferedWriter bw = new BufferedWriter(new FileWriter("save_streak.txt"));
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter("save_streak.txt")))
+        {
             bw.write(String.valueOf(streak));
-            bw.close();
         }
+        
         catch(Exception e)
         {
             System.out.println("Error: " + e.getMessage());
@@ -195,14 +203,13 @@ class QuestionRewardApp
     {
         String ch;
         StringBuilder sb = new StringBuilder();
-        try
+        try(BufferedReader br  = new BufferedReader(new FileReader("save_streak.txt")))
         {
-            BufferedReader br  = new BufferedReader(new FileReader("save_streak.txt"));
             while((ch=br.readLine())!= null)
             {
                 sb.append(ch);
             }
-            br.close();
+           
             if (sb.length() > 0)
 			    streak = Integer.parseInt(sb.toString().trim());
 		}
@@ -230,11 +237,11 @@ class QuestionRewardApp
     
     public void saveLastStreakDate()
     {
-        try{
-            BufferedWriter bw = new BufferedWriter(new FileWriter("save_streak_date.txt"));
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter("save_streak_date.txt")))
+        {
             bw.write(LocalDate.now().toString());
-            bw.close();
         }
+        
         catch(Exception e){
             System.out.println("Error: " + e.getMessage());
         }
@@ -244,16 +251,16 @@ class QuestionRewardApp
     {
         String ch;
         StringBuilder sb = new StringBuilder();
-        try{
-            BufferedReader br  = new BufferedReader(new FileReader("save_streak_date.txt"));
+        try(BufferedReader br  = new BufferedReader(new FileReader("save_streak_date.txt")))
+        {
             while((ch=br.readLine())!= null)
             {
                 sb.append(ch);
             }
-            br.close();
             
             return LocalDate.parse(sb.toString().trim());
         }
+        
         catch(Exception e)
         {
             return null;
@@ -283,11 +290,12 @@ class QuestionRewardApp
     
     public void save_Rank()
     {
-        try{
-            BufferedWriter bw = new BufferedWriter(new FileWriter("last_Rank.txt"));
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter("last_Rank.txt")))
+        {
             bw.write(rank().name());
-            bw.close();
-        }catch(Exception e)
+        }
+        
+        catch(Exception e)
         {
             System.out.println("Error saving rank: " + e.getMessage());
         }
@@ -297,17 +305,18 @@ class QuestionRewardApp
     {
         String ch;
         StringBuilder sb = new StringBuilder();
-        try{
-            BufferedReader br  = new BufferedReader(new FileReader("last_Rank.txt"));
+        try(BufferedReader br  = new BufferedReader(new FileReader("last_Rank.txt")))
+        {
             while((ch=br.readLine())!= null)
             {
                 sb.append(ch);
             }
-            br.close();
+           
             if(sb.length()>0) { 
-                return Rank.valueOf(ch.trim());  
+                return Rank.valueOf(sb.toString().trim());  
             } 
         } 
+        
         catch(Exception e) 
         { 
             return Rank.BEGINNER;
@@ -320,7 +329,22 @@ class QuestionRewardApp
         return rank.getLevel();
     }
     
-    public void details()
+    enum Rank 
+        { 
+            BEGINNER(1), LEARNER(2), CONSISTENT(3), FOCUSED(4), DISCIPLINED(5), UNBREAKABLE(6); 
+                private int level; 
+                Rank(int level)
+                { 
+                    this.level = level; 
+                }
+                
+                public int getLevel()
+                { 
+                    return level; 
+                } 
+        }
+        
+     public void details()
     {
         System.out.println("-------------------------------------------------------------");
         System.out.println("coins: "+""+coins+" "+"streak: "+""+streak+" "+"rank: "+rank().name());
@@ -329,55 +353,160 @@ class QuestionRewardApp
     
     public void addQuestion(Scanner sc)
     {
-        try {
-					BufferedWriter bw  = new BufferedWriter(new FileWriter("doubts.txt",true));
-					System.out.println("enter your question");
-					sc.nextLine();
-					String question = sc.nextLine().trim();
-					if(question.isEmpty()){System.out.println("Question cannot be empty!");}
-					else{
-					    bw.write(question + "\n");
-					    coins++;
-					    saveCoins();
-					    save_Rank();
-					    didtask = true;
-					}
-					
-					bw.close();
-				}
-				catch(Exception e)
-				{
-					System.out.println("Error: " + e.getMessage());
-				}
+        if(QuestionLimit()!=-1){
+        try(BufferedWriter bw  = new BufferedWriter(new FileWriter("doubts.txt",true)))
+        {
+            System.out.println("-----------------------------------------------");
+            
+			System.out.print("Enter Your Question: ");
+			sc.nextLine();
+			String question = sc.nextLine().trim();
+			if(question.isEmpty())
+			{
+			    System.out.println("Question cannot be empty!");
+			}
+			else
+			{
+				bw.write(question + "\n");
+				coins++;
+				saveCoins();
+				save_Rank();
+				didtask = true;
+			}
+		}
+		
+		catch(Exception e)
+		{
+			System.out.println("Error: " + e.getMessage());
+		}
+        }
     }
+    
+    public int QuestionLimit() 
+    {
+        actual_limit = defineActualLimit();
+        
+        Long gap = diff_days_active();
+
+    
+        if(gap == null) {
+            if(limit == actual_limit) 
+            {
+                System.out.println("You have used " + limit + "/" + actual_limit + " questions today.");
+                return -1;
+        } 
+        else 
+        {   
+            limit++;
+            System.out.println("You have used " + limit + "/" + actual_limit + " questions today.");
+            saveLimit();
+            return 0;
+        }
+    }
+
+    if(gap > 0) 
+    {
+        limit = 0;
+        saveLimit();
+    }
+
+    if(gap == 0 && limit == actual_limit) {
+        System.out.println("You have used " + limit + "/" + actual_limit + " questions today.");
+        return -1;
+    } else {
+        limit++;
+        System.out.println("You have used " + limit + "/" + actual_limit + " questions today.");
+        saveLimit();
+        return 0;
+    }
+}
+
+    
+    public int defineActualLimit() {
+    Rank rank = loadLastRank();
+    switch(rank) {
+        case UNBREAKABLE: return 99;
+        case DISCIPLINED: return 40;
+        case FOCUSED: return 18;
+        case CONSISTENT: return 9;
+        case LEARNER: return 5;
+        case BEGINNER: return 2;
+        default: return 1;
+    }
+}
+
+    public void saveLimit()
+    {
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter("limit.txt")))
+        {
+            bw.write(String.valueOf(limit));
+        }
+        
+        catch(Exception e)
+        {
+            System.out.println("Error" + e.getMessage());
+        }
+    }
+    
+    public void loadLimit()
+    {
+        String ch;
+        StringBuilder sb = new StringBuilder();
+        try(BufferedReader br = new BufferedReader(new FileReader("limit.txt")))
+        {
+            while((ch=br.readLine())!=null)
+            {
+                sb.append(ch);
+            }
+            
+            if (sb.length() > 0)
+		    {
+			    limit = Integer.parseInt(sb.toString().trim());
+		    }
+        }
+        catch(Exception e)
+        {
+            limit=0;
+        }
+    }
+
     
     public void viewQuestions()
     {
+        System.out.println("-----------------------------------------------");
+        int count=1;
         String ch;
-        try {
-			BufferedReader br  = new BufferedReader(new FileReader("doubts.txt"));
-			  while((ch=br.readLine())!= null)
-				{
-				    System.out.print(ch);
-				}
-				br.close();
-				} 
-				catch(Exception e)
-				{
-					System.out.println("Error: " + e.getMessage());
-				}
+        try(BufferedReader br  = new BufferedReader(new FileReader("doubts.txt")))
+        {
+		    while((ch=br.readLine())!= null)
+			{
+			    System.out.println(count+". "+ch);
+			    count++;
+			}
+		
+		} 
+		
+		catch(Exception e)
+		{
+			System.out.println("Error: " + e.getMessage());
+		}
     }
     
     public void showCoins()
     {
+        System.out.println("-----------------------------------------------");
         System.out.println("total coins:"+coins);
     }
     
-    public void showStreak(){
+    public void showStreak()
+    {
+        System.out.println("-----------------------------------------------");
         System.out.println("your streak is: "+streak);
     }
     
-    public void showRank(){
+    public void showRank()
+    {
+        System.out.println("-----------------------------------------------");
         System.out.println("your rank is: "+rank().name());
     }
     
@@ -392,12 +521,13 @@ class QuestionRewardApp
 	    do
 		{
 		    menu();
-            System.out.print("Enter your choice: ");
-
-            try {
+            try 
+            {
                 choise = sc.nextInt();
-                
-            } catch (Exception e) {
+            }
+            
+            catch (Exception e)
+            {
                 System.out.println("Invalid input! Please enter only numbers.");
                 sc.nextLine();   
                 choise = -1;
@@ -479,6 +609,7 @@ class QuestionRewardApp
         
         app.checkCoinLoad();
         app.checkStreakLoad();
+        app.loadLimit();
         
         int old_coins = app.coins;
         
@@ -501,7 +632,7 @@ class QuestionRewardApp
         int updated_coins = app.coins; 
         int earn_coins = updated_coins - old_coins;
    
-        System.out.printf("you earn %d coin so you move to %d -> %d\n",earn_coins,old_coins,updated_coins);
+        System.out.printf("you earn %d coin so you move to %d coins -> %d coins\n",earn_coins,old_coins,updated_coins);
         System.out.println("Great job! You earned a coin Keep going!");
         Rank newRank = app.rank();
 
@@ -523,8 +654,5 @@ class QuestionRewardApp
         app.save_Rank();
         app.saveCoins();
         app.saveStreak();
-        
-        
     }
-
 }
